@@ -1,0 +1,52 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "hubVirtualNetworkName": {
+            "type": "string",
+            "defaultValue": "vnet-hub-lab-westus2-001",
+            "metadata": {
+                "description": "ハブ仮想ネットワーク名"
+            }
+        },
+        "spokeVirtualNetworkName": {
+            "type": "string",
+            "defaultValue": "vnet-spoke-lab-westus2-001",
+            "metadata": {
+                "description": "スポーク仮想ネットワーク名"
+            }
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+            "apiVersion": "2020-11-01",
+            "name": "[format('{0}/peer-handson-lab-westus2-001', parameters('hubVirtualNetworkName'))]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "allowVirtualNetworkAccess": true,
+                "allowForwardedTraffic": true,
+                "allowGatewayTransit": true,
+                "remoteVirtualNetwork": {
+                    "id": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', parameters('spokeVirtualNetworkName'))]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+            "apiVersion": "2020-11-01",
+            "name": "[format('{0}/peer-handson-lab-westus2-001', parameters('spokeVirtualNetworkName'))]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "allowVirtualNetworkAccess": true,
+                "allowForwardedTraffic": true,
+                "allowGatewayTransit": true,
+                "remoteVirtualNetwork": {
+                    "id": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', parameters('hubVirtualNetworkName'))]"
+                }
+            }
+        }        
+    ],
+    "outputs": {}
+}
