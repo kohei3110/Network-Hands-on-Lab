@@ -1,0 +1,227 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualMachineName": {
+            "type": "string",
+            "defaultValue": "vm-handson-lab-westus2-001",
+            "metadata": {
+                "description": "スポーク VNET に配置する仮想マシン名"
+            }
+        },
+        "adminUsername": {
+            "type": "string",
+            "defaultValue": "userAdmin",
+            "metadata": {
+                "description": "仮想マシン管理者ユーザー名"
+            }
+        },
+        "adminPassword": {
+            "type": "securestring",
+            "defaultValue": "AdminPassword#123",
+            "metadata": {
+                "description": "仮想マシン管理者パスワード"
+            }
+        },        
+        "resourceGroup": {
+            "type": "string",
+            "defaultValue": "rg-handson-lab-westus2-001",
+            "metadata": {
+                "description": "スポーク VNET を展開したリソースグループ名"
+            }
+        },
+        "virtualNetworkName": {
+            "type": "string",
+            "defaultValue": "vnet-spoke-lab-westus2-001",
+            "metadata": {
+                "description": "スポーク VNET 名"
+            }
+        },
+        "vnetAddressSpace": {
+            "type": "string",
+            "defaultValue": "172.16.0.0/20",
+            "metadata": {
+                "description": "スポーク VNET のアドレス範囲"
+            }
+        },
+        "subnetName": {
+            "type": "string",
+            "defaultValue": "snet-spoke-lab-westus2-001",
+            "metadata": {
+                "description": "仮想マシンを展開するサブネット名"
+            }
+        },
+        "subnetAddressSpace": {
+            "type": "string",
+            "defaultValue": "172.16.0.0/24",
+            "metadata": {
+                "description": "サブネットのアドレス範囲"
+            }
+        },
+        "publicIPAddressName": {
+            "type": "string",
+            "defaultValue": "pip-handson-lab-westus2-001",
+            "metadata": {
+                "description": "仮想マシンにアタッチする Public IP アドレス名"
+            }
+        }
+    },
+    "variables": {
+        "networkInterfaceName": "nic-handson-lab-westus2-001",
+        "networkSecurityGroupName": "nsg-handson-lab-westus2-001",
+        "subnetRef": "[resourceId(parameters('resourceGroup'), 'Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetName'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2020-11-01",
+            "name": "[parameters('virtualNetworkName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
+            ],
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "[parameters('vnetAddressSpace')]"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "[parameters('subnetName')]",
+                        "properties": {
+                            "addressPrefix": "[parameters('subnetAddressSpace')]",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
+                            }
+                        }
+                    }
+                ]
+            }
+
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2021-03-01",
+            "name": "[parameters('virtualMachineName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', variables('networkInterfaceName'))]"
+            ],
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_B2ms"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "MicrosoftWindowsServer",
+                        "offer": "WindowsServer",
+                        "sku": "2019-datacenter-gensecond",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "osType": "Windows",
+                        "createOption": "FromImage",
+                        "caching": "ReadWrite",
+                        "managedDisk": {
+                            "storageAccountType": "StandardSSD_LRS"
+                        },
+                        "deleteOption": "Detach",
+                        "diskSizeGB": 127
+                    },
+                    "dataDisks": []
+                },
+                "osProfile": {
+                    "computerName": "vm-handson-lab",
+                    "adminUsername": "[parameters('adminUserName')]",
+                    "adminPassword": "[parameters('adminPassword')]",
+                    "windowsConfiguration": {
+                        "provisionVMAgent": true,
+                        "enableAutomaticUpdates": true,
+                        "patchSettings": {
+                            "patchMode": "AutomaticByOS",
+                            "assessmentMode": "ImageDefault",
+                            "enableHotpatching": false
+                        }
+                    },
+                    "secrets": [],
+                    "allowExtensionOperations": true
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('networkInterfaceName'))]"
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2020-11-01",
+            "name": "[variables('networkInterfaceName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddressName'))]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddressName'))]"
+                            },
+                            "subnet": {
+                                "id": "[variables('subnetRef')]"
+                            },
+                            "privateIPAllocationMethod": "Dynamic"
+                        }
+                    }
+                ]                
+            }
+        },
+        {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2020-11-01",
+            "name": "[parameters('publicIPAddressName')]",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Standard"
+            },
+            "properties": {
+                "publicIPAllocationMethod": "Static"                
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2020-11-01",
+            "name": "[variables('networkSecurityGroupName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "allow-3389",
+                        "properties": {
+                        "priority": 1000,
+                        "access": "Allow",
+                        "direction": "Inbound",
+                        "destinationPortRange": "3389",
+                        "protocol": "Tcp",
+                        "sourcePortRange": "*",
+                        "sourceAddressPrefix": "*",
+                        "destinationAddressPrefix": "*"
+                        }
+                    }
+                ]
+            }
+        }
+    ],
+    "outputs": {}
+}
