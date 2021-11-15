@@ -14,7 +14,7 @@ December 2021
 
 <br />
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fkohei3110%2FNetwork-Hands-on-Lab%2Fhiroyay%2FResources%2Fvnet-deploy.json)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fkohei3110%2FNetwork-Hands-on-Lab%2Fhiroyay%2Ftemplates%2F%2FResources%2Fvnet-deploy.json)
 
 ### パラメーター
 - **vnetName**: 仮想ネットワーク名
