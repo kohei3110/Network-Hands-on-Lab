@@ -14,7 +14,7 @@ December 2021
 
 <br />
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fkohei3110%2FNetwork-Hands-on-Lab%2Fhiroyay%2Ftemplates%2FResources%2Fvnet-deploy.json)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fkohei3110%2FNetwork-Hands-on-Lab%2Fmaster%2Ftemplates%2FResources%2Fdeploy-resources.json)
 
 ### パラメーター
 - **vnetName**: 仮想ネットワーク名
@@ -42,3 +42,17 @@ December 2021
 ※事前にリソース グループの作成が必要
 
 ※選択したリソース グループのリージョンにすべてのリソースが展開
+
+<br />
+
+## リソースの設定
+
+- Log Analytics ワークスペースへ仮想マシンを接続
+
+- Azure Monitor for VM を有効化
+
+- プライベート エンドポイントへの NSG 適用の有効化
+
+  ```
+  Register-AzProviderFeature -FeatureName AllowPrivateEndpointNSG -ProviderNamespace Microsoft.Network
+  ```

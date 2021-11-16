@@ -115,6 +115,32 @@
                             "priority": 100,
                             "direction": "Inbound"
                         }
+                    },
+                    {
+                        "name": "AllowHttpInBound",
+                        "properties": {
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "80",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 200,
+                            "direction": "Inbound"
+                        }
+                    },
+                    {
+                        "name": "AllowHttpsInBound",
+                        "properties": {
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "443",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 300,
+                            "direction": "Inbound"
+                        }
                     }
                 ]
             }
@@ -249,8 +275,6 @@
                 },
                 "retentionInDays": 30,
                 "features": {
-                    "searchVersion": 1,
-                    "legacy": 0,
                     "enableLogAccessUsingOnlyResourcePermissions": true
                 },
                 "publicNetworkAccessForIngestion": "Enabled",
