@@ -41,6 +41,8 @@ December 2021
 
   - [Task 3： ファイアウォール ポリシーの構成](#task-3-ファイアウォール-ポリシーの構成)
 
+- [Exercise 5： Azure Monitor による監視](#exercise-5-azure-monitor-による監視)
+
 <br />
 
 ### 前提条件
@@ -1134,4 +1136,67 @@ TLS 検査の設定
   <img src="images/firewall-policy-19.png" />
 
 <br />
+
+## Exercise 5： Azure Monitor による監視
+
+- Azure Portal のホーム画面で **Azure Monitor** をクリック
+
+- **ログ** を選択し、クエリを実行
+
+  ```
+  AzureDiagnostics
+  | where ResourceType == "AZUREFIREWALLS"
+  | extend
+       proto =      extract(@"^([A-Z]+) ",1,msg_s)
+      ,src_host =   extract(@"request from ([\d\.]*)",1,msg_s)
+      ,src_port =   extract(@"request from [\d\.]*:(\d+)",1,msg_s)
+      ,dest_host =  extract(@" to ([-\w\.]+)(:|\. |\.$)",1,msg_s)
+      ,dest_port =  extract(@" to [-\w\.]+:(\d+)",1,msg_s)
+      ,action =     iif(
+         msg_s has "was denied"
+        ,"Deny"
+        ,extract(@" Action: (\w+)",1,msg_s))
+      ,rule_coll =  extract(@" Rule Collection: (\w+)",1,msg_s)
+      ,rule =       coalesce(
+         extract(@" Rule: (.*)",1,msg_s)
+        ,extract("No rule matched",0,msg_s))
+      ,reason =     extract(@" Reason: (.*)",1,msg_s)
+  | project TimeGenerated,Category,proto,src_host,src_port,dest_host,dest_port,action,rule_coll,rule,reason,msg_s
+  ```
+
+  ※アプリケーション ルールによりアクセス拒否されたログが表示
+
+- [Azure Monitor Workbook for Azure Firewall](https://github.com/Azure/Azure-Network-Security/tree/master/Azure%20Firewall/Workbook%20-%20Azure%20Firewall%20Monitor%20Workbook) へアクセス
+
+- **Deploy to Azure** をクリックし、Azure ブックをサブスクリプションへ展開
+
+  - **サブスクリプション**： 使用するサブスクリプションを選択
+
+  - **リソース グループ**： リソースを格納するリソース グループを選択
+
+  - **リージョン**： 地域を選択
+
+  - **Workbook Display Name**： 任意
+
+  - **Workbook Type**： workbook
+
+  - **Diagnostics Workspace Name**： Log Analytics ワークスペース
+
+  - **Diagnostics Workspace Subscription**： Log Analytics が展開されているサブスクリプションのサブスクリプション ID
+
+  - **Diagnostics Workspace Resource Group**： Log Analytics の格納先のリソース グループ名
+
+  - **Workbook Id**： GUID
+
+  <img src="images/firewall-book-01.png" />
+
+  ※PowerShell による GUID の生成
+
+  ```
+  [Guid]::NewGuid()
+  ```
+
+- 展開完了後、リソースへアクセス
+
+  <img src="images/firewall-book-02.png" />
 
