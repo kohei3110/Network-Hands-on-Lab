@@ -56,3 +56,5 @@ December 2021
   ```
   Register-AzProviderFeature -FeatureName AllowPrivateEndpointNSG -ProviderNamespace Microsoft.Network
   ```
+
+- 仮想マシンへ Edge か Chrome をインストール
