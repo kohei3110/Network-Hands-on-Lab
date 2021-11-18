@@ -51,6 +51,18 @@ December 2021
 
 - Azure Monitor for VM を有効化
 
+- CloudShell で Az.Network のバージョンを確認
+
+  ```
+  (Get-InstalledModule -Name Az.Network -AllVersions).Version
+  ```
+
+  4.12.1-preview がインストールされていない場合は、インストール
+
+  ```
+  Install-Module -Name Az.Network -RequiredVersion 4.12.1-preview -AllowPrerelease -Force
+  ```
+
 - プライベート エンドポイントへの NSG 適用の有効化
 
   ```
