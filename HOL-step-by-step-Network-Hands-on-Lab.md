@@ -43,6 +43,10 @@ December 2021
 
 - [Exercise 5： Azure Monitor による監視](#exercise-5-azure-monitor-による監視)
 
+  - [Task 1： Azure Firewall の監視](#task-1-azure-firewall-の監視)
+
+  - [Task 2： Azure Monitor for VM による仮想マシンの管理](#task-2-azure-monitor-for-vm-による仮想マシンの管理)
+
 <br />
 
 ### 前提条件
@@ -1139,6 +1143,8 @@ TLS 検査の設定
 
 ## Exercise 5： Azure Monitor による監視
 
+### Task 1： Azure Firewall の監視
+
 - Azure Portal のホーム画面で **Azure Monitor** をクリック
 
 - **ログ** を選択し、クエリを実行
@@ -1200,3 +1206,170 @@ TLS 検査の設定
 
   <img src="images/firewall-book-02.png" />
 
+<br />
+
+### Task 2： Azure Monitor for VM による仮想マシンの管理
+
+依存関係マップの表示
+
+- Azure Monitor の管理ブレードから **仮想マシン** を選択
+
+  <img src="images/azure-monitor-for-vm-01.png" />
+
+- 仮想マシンを選択
+
+  **マップ** タブを選択
+
+  <img src="images/azure-monitor-for-vm-02.png" />
+
+  ※仮想マシンの依存関係を視覚化
+  
+  ※指定された時間範囲で TCP 接続されたアーキテクチャのポートを表示
+
+- プロセスや接続先を確認
+
+  <img src="images/azure-monitor-for-vm-03.png" />
+
+収集されたデータの確認
+
+- Azure Monitor の **ログ** を選択
+
+  <img src="images/azure-monitor-for-vm-04.png" />
+
+- クエリの実行
+
+  - ハートビート レコードの取得
+
+    ```
+    Heartbeat
+    | summarize TimeGenerated=max(TimeGenerated) by Computer
+    | extend Duration = datetime_diff('minute',now(),TimeGenerated)
+    | summarize AggregatedValue = min(Duration) by Computer, bin(TimeGenerated,5m)
+    ```
+  
+  - CPU 使用率
+
+    ```
+    InsightsMetrics
+    | where Namespace == "Processor" and Name == "UtilizationPercentage"
+    | summarize AggregatedValue = avg(Val) by bin(TimeGenerated, 15m), Computer
+    ```
+
+  - 使用可能なメモリ（MB）
+
+    ```
+    InsightsMetrics
+    | where Origin == "vm.azm.ms"
+    | where Namespace == "Memory" and Name == "AvailableMB"
+    | summarize AggregatedValue = avg(Val) by bin(TimeGenerated, 15m), Computer
+    ```
+
+  - バインドされているポート
+
+    ```
+    VMBoundPort
+    | where TimeGenerated >= ago(3hr)
+    | distinct Port, ProcessName
+    ```
+
+アラートの作成
+
+- 接続エラーを取得するクエリを実行
+
+  ```
+  VMConnection
+  | where LinksFailed == 1
+  | project TimeGenerated, Computer, Direction, SourceIp, DestinationIp, DestinationPort
+  ```
+
+- **＋ 新しいアラート ルール** をクリック
+
+  <img src="images/azure-monitor-for-vm-05.png" />
+
+- アラート ルールの作成
+
+  - **条件** タブ
+
+    - 測定
+
+      **メジャー**： テーブルの行
+
+      **集計の種類**： カウント
+
+      **集計の粒度**： ５分
+
+    - ディメンションで分割する
+  
+      **リソース ID 列**： 分割しない
+
+    - アラート ロジック
+
+      **演算子**： 次の値より大きい
+
+      **しきい値**： 1
+
+      **評価の粒度**： ５分
+
+      <img src="images/azure-monitor-for-vm-06.png" />
+
+  - **アクション** タブ
+
+    - アクション グループの作成
+
+      - **基本** タブ
+
+        **サブスクリプション**： 使用するサブスクリプション
+
+        **リソース グループ**： リソースを作成するリソース グループ
+
+        **アクション グループ名**： 任意
+
+        **表示名**： 任意
+
+        <img src="images/action-group-01.png" />
+      
+      - **通知** タブ
+
+        **通知の種類**： 電子メール/SMS メッセージ/プッシュ/音声
+
+        **名前**： 任意
+
+        **選択済み**： 電子メール
+
+        <img src="images/action-group-02.png" />
+
+        <img src="images/action-group-02-1.png" />
+      
+      - アクション、タブは設定せず作成
+
+    - アクション グループが追加されたことを確認して **詳細** へ移動
+
+      <img src="images/azure-monitor-for-vm-07.png" />
+  
+  - **詳細** タブ
+
+    - プロジェクトの詳細
+
+      **サブスクリプション**： 使用するサブスクリプション
+
+      **リソース グループ**： リソースを作成するリソース グループ
+
+    - アラート ルールの詳細
+
+      **重大度**： 1 - エラー
+
+      **アラート ルール名**： 任意
+
+      **アラート ルールの説明**： 任意
+
+    - 詳細設定オプション
+
+      **作成時に有効化**： チェック
+
+      <img src="images/azure-monitor-for-vm-08.png" />
+
+- 指定した電子メール アドレスでアラートの通知を受信
+
+  <img src="images/azure-monitor-for-vm-09.png" />
+
+  ※Azure Monitor for VM で取得できるログ、メトリックを利用して様々な仮想マシンの状態を監視してアラートを作成可
