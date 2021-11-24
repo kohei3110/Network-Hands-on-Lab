@@ -14,7 +14,7 @@ December 2021
 
   - [Task 3： Virtual Network Manager の作成](#task-3-virtual-network-manager-の作成)
 
-  - [Task 4：接続構成とセキュリティ管理規則の作成](#task-4-接続構成とセキュリティ管理規則の作成)
+  - [Task 4： 接続構成とセキュリティ管理規則の作成と展開](#task-4-接続構成とセキュリティ管理規則の作成と展開)
 
   - [Task 5： ネイティブ Windows クライアントを使用した仮想マシンへの接続](#task-5-ネイティブ-windows-クライアントを使用した仮想マシンへの接続)
 
@@ -692,7 +692,7 @@ December 2021
 
 - PowerShell を起動
 
-- Test-Connection コマンドレットでポートの開閉を確認
+- Test-NetConnection コマンドレットでポートの開閉を確認
 
   ```
   Test-NetConnection -ComputerName <storage account namae>.file.core.windows.net -Port 445
@@ -727,7 +727,11 @@ December 2021
   $vnet | Set-AzVirtualNetwork
   ```
 
-- Test-Connection コマンドレットでポートの開閉を確認
+- Test-NetConnection コマンドレットでポートの開閉を確認
+
+  ```
+  Test-NetConnection -ComputerName <storage account namae>.file.core.windows.net -Port 445
+  ```
 
   <img src="images/network-security-group-12.png" />
 
@@ -1306,7 +1310,7 @@ TLS 検査の設定
 
       **演算子**： 次の値より大きい
 
-      **しきい値**： 1
+      **しきい値**： 0
 
       **評価の粒度**： ５分
 
@@ -1373,3 +1377,15 @@ TLS 検査の設定
   <img src="images/azure-monitor-for-vm-09.png" />
 
   ※Azure Monitor for VM で取得できるログ、メトリックを利用して様々な仮想マシンの状態を監視してアラートを作成可
+
+- Azure Monitor のアラート画面で発生したアラートを確認
+
+  エラーをクリックして詳細を表示
+
+  <img src="images/azure-monitor-for-vm-10.png" />
+
+- 該当エラーをチェックし **状態を変更** からアラートの状態を変更
+
+  <img src="images/azure-monitor-for-vm-11.png" />
+
+  <img src="images/azure-monitor-for-vm-12.png" />
