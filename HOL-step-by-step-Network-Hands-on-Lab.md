@@ -57,6 +57,14 @@ December 2021
 
 <br />
 
+### アーキテクチャ
+
+- このワークショップで構成する内容
+
+  <img src="images/workshop-architecture.png" />
+
+<br />
+
 ## Exercise 1： セキュアな RDP/SSH 接続の構成
 
 ### Task 1： RDP による仮想マシンへの接続
