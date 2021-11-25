@@ -1,0 +1,134 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "fileStorageAccountName": {
+            "type": "string",
+            "defaultValue": "sthandsonlabwestus200",
+            "metadata": {
+                "description": "ストレージアカウント名"
+            }
+        },
+        "fileShareName": {
+            "type": "string",
+            "defaultValue": "text",
+            "metadata": {
+                "description": "File Share 名"
+            }
+        },
+        "fileSharePrivateEndpointName": {
+            "type": "string",
+            "defaultValue": "pe-handson-lab-westus2-001",
+            "metadata": {
+                "description": "プライベートエンドポイント名"
+            }
+        },
+        "resourceGroup": {
+            "type": "string",
+            "defaultValue": "rg-handson-lab-westus2-001",
+            "metadata": {
+                "description": "スポーク VNET を展開したリソースグループ名"
+            }
+        },
+        "virtualNetworkName": {
+            "type": "string",
+            "defaultValue": "vnet-spoke-lab-westus2-001",
+            "metadata": {
+                "description": "プライベートエンドポイントを展開する VNET 名"
+            }
+        },
+        "subnetName": {
+            "type": "string",
+            "defaultValue": "snet-spoke-lab-westus2-001",
+            "metadata": {
+                "description": "プライベートエンドポイントを展開するサブネット名"
+            }
+        }
+    },
+    "variables": {
+        "fileShareId": "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', parameters('fileStorageAccountName'), 'default', parameters('fileShareName'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2021-04-01",
+            "name": "[parameters('fileStorageAccountName')]",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "kind": "StorageV2",
+            "properties": {
+                "accessTier": "Hot"                
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
+            "apiVersion": "2021-04-01",
+            "name": "[concat(parameters('fileStorageAccountName'), '/default/', parameters('fileShareName'))]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('fileStorageAccountName'))]"
+            ],
+            "properties": {
+                "shareQuota": 5120
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateEndpoints",
+            "apiVersion": "2020-11-01",
+            "name": "[parameters('fileSharePrivateEndpointName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('fileStorageAccountName'))]",
+                "[variables('fileShareId')]"
+            ],
+            "properties": {
+                "privateLinkServiceConnections": [
+                    {
+                        "name": "[parameters('fileSharePrivateEndpointName')]",
+                        "properties": {
+                            "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('fileStorageAccountName'))]",
+                            "groupIds": ["file"]
+                        }
+                    }
+                ],
+                "subnet": {
+                    "id": "[resourceId(parameters('resourceGroup'), 'Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetName'))]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones",
+            "apiVersion": "2018-09-01",
+            "name": "[concat('privatelink', concat('.file.', environment().suffixes.storage))]",
+            "location": "global",
+            "properties": {
+                "maxNumberOfRecordSets": 25000,
+                "maxNumberOfVirtualNetworkLinks": 1000,
+                "maxNumberOfVirtualNetworkLinksWithRegistration": 100
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+            "apiVersion": "2020-11-01",
+            "name": "[concat(parameters('fileSharePrivateEndpointName'), '/filePrivateDnsZoneGroup')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', concat('privatelink', concat('.file.', environment().suffixes.storage)))]",
+                "[resourceId('Microsoft.Network/privateEndpoints', parameters('fileSharePrivateEndpointName'))]"
+            ],
+            "properties": {
+                "privateDnsZoneConfigs": [
+                    {
+                        "name": "dnsConfig",
+                        "properties": {
+                            "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', concat('privatelink', concat('.file.', environment().suffixes.storage)))]"
+                        }
+                    }
+                ]
+            }
+        }
+    ],
+    "outputs": {}
+}
