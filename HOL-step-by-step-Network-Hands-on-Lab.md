@@ -551,7 +551,7 @@ December 2021
 
   <img src="images/private-endpoint-01.png" />
 
-- **リソース グループ** を選択し、名前
+- **リソース グループ** を選択し、名前を入力
 
   <img src="images/private-endpoint-02.png" />
 
@@ -703,7 +703,7 @@ December 2021
 - Test-NetConnection コマンドレットでポートの開閉を確認
 
   ```
-  Test-NetConnection -ComputerName <storage account namae>.file.core.windows.net -Port 445
+  Test-NetConnection -ComputerName <storage account name>.file.core.windows.net -Port 445
   ```
 
   <img src="images/network-security-group-11.png" />
@@ -826,7 +826,7 @@ December 2021
   - Azure CLI
 
     ```
-    az policy state trigger-scan --resource-group "<resource grouop name>"
+    az policy state trigger-scan --resource-group "<resource group name>"
     ```
 
   - PowerShell
