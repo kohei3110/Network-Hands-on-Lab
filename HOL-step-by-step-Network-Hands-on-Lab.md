@@ -525,11 +525,11 @@ December 2021
 
 - ネットワーク資格情報の入力を求めるダイアログが表示、アカウント名、パスワードを入力し **OK** をクリック
 
-  - アカウント名： localhost\<storage account name>
+  - アカウント名： <storage account name>
 
   - パスワード： ストレージ アカウント キー
 
-  <img src="images/create-storage-account-07.プレビュー/>
+  <img src="images/create-storage-account-07.png />
 
   ※ストレージ アカウント名とキーはストレージ アカウントの管理ブレードの **アクセス キー** から取得
 
