@@ -109,7 +109,7 @@ December 2021
 
   <img src="images/create-vnet-02.png" />
 
-- リソース グループを選択し、仮想ネットワークの名前を入力
+- リソース グループを選択し、仮想ネットワークの名前に **hub** を入力
 
   <img src="images/create-vnet-03.png" />
 
@@ -117,7 +117,9 @@ December 2021
 
   <img src="images/create-vnet-04.png" />
 
-  ※IPv4 アドレス範囲を変更する場合は、サブネットを追加
+  ※IPv4 アドレス範囲を変更する場合は、**Subnet-1** の名前でサブネットを追加
+
+  ※IPv4 アドレス範囲を変更しない場合は、サブネット名を default から **Subnet-1** へ変更
 
   <img src="images/create-vnet-04-subnets.png" />
 
@@ -258,7 +260,7 @@ December 2021
 
 - Bastion から RDP 接続を許可するルールを追加
 
-  - **Name**： 任意
+  - **Name**： AllowBastionInbound
 
   - **Priority**： 100
 
@@ -284,7 +286,7 @@ December 2021
 
 - RDP 接続を拒否するルールも作成して追加
 
-  - **Name**： 任意
+  - **Name**： DenyRDPInbound
 
   - **Priority**： 200
 
@@ -615,14 +617,17 @@ December 2021
 
 - ファイル共有へのパスを入力し **Finish** をクリック
 
-  - **Folder**： \\<storage account name>.file.core.windows.net
+  - **Folder**：
 
+    ```
+    \\<storage account name>.file.core.windows.net\<file share>
+    ```
 
     <img src="images/network-drive-02.png" />
 
 - ネットワーク資格情報の入力を求めるダイアログが表示、資格情報を入力し **OK** をクリック
 
-  - **User name**: localhost\<storage account name>
+  - **User name**: <storage account name>
 
   - **Password**： ストレージ アカウント キー
 
@@ -676,7 +681,7 @@ December 2021
 
   - **優先度**： 100
 
-  - **名前**： 任意
+  - **名前**： DenyPort445Inbound
 
     <img src="images/network-security-group-06.png" />
 
@@ -716,14 +721,6 @@ December 2021
   $vnet = Get-AzVirtualNetwork -Name '<vnet name>' -ResourceGroupName '<resource group name>'
   ```
 
-  PrivateEndpointNetworkPolicies プロパティの確認
-
-  ```
-  ($vnet | Select -ExpandProperty Subnets | Where-Object {$_.Name -eq '<subnet name>'})
-  ```
-
-  ※Disabled の場合、NSG 適用が無効
-
   PrivateEndpointNetworkPolicies を Enabled に設定
 
   ```
@@ -734,6 +731,14 @@ December 2021
   ```
   $vnet | Set-AzVirtualNetwork
   ```
+
+  PrivateEndpointNetworkPolicies プロパティの確認
+
+  ```
+  ($vnet | Select -ExpandProperty Subnets | Where-Object {$_.Name -eq '<subnet name>'})
+  ```
+
+  ※Disabled の場合、NSG 適用が無効
 
 - Test-NetConnection コマンドレットでポートの開閉を確認
 
