@@ -535,7 +535,7 @@ December 2021
 
   - パスワード： ストレージ アカウント キー
 
-  <img src="images/create-storage-account-07.png />
+  <img src="images/create-storage-account-07.png" />
 
   ※ストレージ アカウント名とキーはストレージ アカウントの管理ブレードの **アクセス キー** から取得
 
