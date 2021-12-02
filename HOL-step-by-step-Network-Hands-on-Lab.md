@@ -67,6 +67,8 @@ December 2021
 
 ## Exercise 1： セキュアな RDP/SSH 接続の構成
 
+<img src="images/exercise1.png" />
+
 ### Task 1： RDP による仮想マシンへの接続
 
 - ブラウザを起動し [Azure Portal](#https://portal.azure.com/) へアクセス
@@ -109,7 +111,7 @@ December 2021
 
   <img src="images/create-vnet-02.png" />
 
-- リソース グループを選択し、仮想ネットワークの名前を入力
+- リソース グループを選択し、仮想ネットワークの名前に **hub** を入力
 
   <img src="images/create-vnet-03.png" />
 
@@ -117,7 +119,9 @@ December 2021
 
   <img src="images/create-vnet-04.png" />
 
-  ※IPv4 アドレス範囲を変更する場合は、サブネットを追加
+  ※IPv4 アドレス範囲を変更する場合は、**Subnet-1** の名前でサブネットを追加
+
+  ※IPv4 アドレス範囲を変更しない場合は、サブネット名を default から **Subnet-1** へ変更
 
   <img src="images/create-vnet-04-subnets.png" />
 
@@ -258,7 +262,7 @@ December 2021
 
 - Bastion から RDP 接続を許可するルールを追加
 
-  - **Name**： 任意
+  - **Name**： AllowBastionInbound
 
   - **Priority**： 100
 
@@ -284,7 +288,7 @@ December 2021
 
 - RDP 接続を拒否するルールも作成して追加
 
-  - **Name**： 任意
+  - **Name**： DenyRDPInbound
 
   - **Priority**： 200
 
@@ -471,6 +475,8 @@ December 2021
 
 ## Exercise 2： PaaS サービスへの安全な接続
 
+<img src="images/exercise2.png" />
+
 ### Task 1： ストレージ アカウントとファイル共有の作成
 
 - Azure Portal のホーム画面から **リソースの作成** をクリック
@@ -525,11 +531,11 @@ December 2021
 
 - ネットワーク資格情報の入力を求めるダイアログが表示、アカウント名、パスワードを入力し **OK** をクリック
 
-  - アカウント名： localhost\<storage account name>
+  - アカウント名： ストレージ アカウント名
 
   - パスワード： ストレージ アカウント キー
 
-  <img src="images/create-storage-account-07.プレビュー/>
+  <img src="images/create-storage-account-07.png" />
 
   ※ストレージ アカウント名とキーはストレージ アカウントの管理ブレードの **アクセス キー** から取得
 
@@ -615,14 +621,17 @@ December 2021
 
 - ファイル共有へのパスを入力し **Finish** をクリック
 
-  - **Folder**： \\<storage account name>.file.core.windows.net
+  - **Folder**：
 
+    ```
+    \\<storage account name>.file.core.windows.net\<file share>
+    ```
 
     <img src="images/network-drive-02.png" />
 
 - ネットワーク資格情報の入力を求めるダイアログが表示、資格情報を入力し **OK** をクリック
 
-  - **User name**: localhost\<storage account name>
+  - **User name**: ストレージ アカウント名
 
   - **Password**： ストレージ アカウント キー
 
@@ -676,7 +685,7 @@ December 2021
 
   - **優先度**： 100
 
-  - **名前**： 任意
+  - **名前**： DenyPort445Inbound
 
     <img src="images/network-security-group-06.png" />
 
@@ -716,14 +725,6 @@ December 2021
   $vnet = Get-AzVirtualNetwork -Name '<vnet name>' -ResourceGroupName '<resource group name>'
   ```
 
-  PrivateEndpointNetworkPolicies プロパティの確認
-
-  ```
-  ($vnet | Select -ExpandProperty Subnets | Where-Object {$_.Name -eq '<subnet name>'})
-  ```
-
-  ※Disabled の場合、NSG 適用が無効
-
   PrivateEndpointNetworkPolicies を Enabled に設定
 
   ```
@@ -734,6 +735,14 @@ December 2021
   ```
   $vnet | Set-AzVirtualNetwork
   ```
+
+  PrivateEndpointNetworkPolicies プロパティの確認
+
+  ```
+  ($vnet | Select -ExpandProperty Subnets | Where-Object {$_.Name -eq '<subnet name>'})
+  ```
+
+  ※Disabled の場合、NSG 適用が無効
 
 - Test-NetConnection コマンドレットでポートの開閉を確認
 
@@ -748,6 +757,8 @@ December 2021
 <br />
 
 ## Exercise 3： Azure Policy によるネットワーク セキュリティ グループの評価
+
+<img src="images/exercise3.png" />
 
 ### Task 1： ポリシー定義の作成
 
@@ -846,6 +857,8 @@ December 2021
 <br />
 
 ## Exercise 4： Azure Firewall による通信の制御
+
+<img src="images/exercise4.png" />
 
 ### Task 1： Azure Firewall Premium の展開
 
@@ -1154,6 +1167,8 @@ TLS 検査の設定
 <br />
 
 ## Exercise 5： Azure Monitor による監視
+
+<img src="images/exercise5.png" />
 
 ### Task 1： Azure Firewall の監視
 
