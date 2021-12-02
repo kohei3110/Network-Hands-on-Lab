@@ -67,6 +67,8 @@ December 2021
 
 ## Exercise 1： セキュアな RDP/SSH 接続の構成
 
+<img src="images/exercise1.png" />
+
 ### Task 1： RDP による仮想マシンへの接続
 
 - ブラウザを起動し [Azure Portal](#https://portal.azure.com/) へアクセス
@@ -473,6 +475,8 @@ December 2021
 
 ## Exercise 2： PaaS サービスへの安全な接続
 
+<img src="images/exercise2.png" />
+
 ### Task 1： ストレージ アカウントとファイル共有の作成
 
 - Azure Portal のホーム画面から **リソースの作成** をクリック
@@ -754,6 +758,8 @@ December 2021
 
 ## Exercise 3： Azure Policy によるネットワーク セキュリティ グループの評価
 
+<img src="images/exercise3.png" />
+
 ### Task 1： ポリシー定義の作成
 
 - Azure Portal のホーム画面から **その他のサービス** をクリック
@@ -851,6 +857,8 @@ December 2021
 <br />
 
 ## Exercise 4： Azure Firewall による通信の制御
+
+<img src="images/exercise4.png" />
 
 ### Task 1： Azure Firewall Premium の展開
 
@@ -1159,6 +1167,8 @@ TLS 検査の設定
 <br />
 
 ## Exercise 5： Azure Monitor による監視
+
+<img src="images/exercise5.png" />
 
 ### Task 1： Azure Firewall の監視
 
